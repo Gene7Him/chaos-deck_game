@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"chaos_deck/backend/internal/room"
+	"chaos_deck/backend/internal/redis"
+	"time"
 )
 
 type Message struct {
@@ -53,7 +55,15 @@ func ApplyCardEffect(card Card, player *room.Player, roomID string) {
 		triggerTrap(player, roomID)
 	default:
 		room.BroadcastCardPlay(player, card, roomID)
+	case "chaos":
+		startChaosTimer(roomID)
+
 	}
+}
+
+func startChaosTimer(roomID string) {
+	key := "chaos_event:" + roomID
+	redis.SetChaosTTL(key, 15*time.Second)
 }
 
 func skipNextTurn(roomID string) {}
